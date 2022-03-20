@@ -60,7 +60,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "YouTubeToPC"))
         self.label.setText(_translate("MainWindow", "URL:"))
         self.label_2.setText(_translate("MainWindow", "Title:"))
         self.label_3.setText(_translate("MainWindow", "Resolution:"))
