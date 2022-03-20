@@ -45,6 +45,7 @@ class Ui_MainWindow(object):
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_2.addItem(spacerItem, 1, 0, 1, 1)
         self.download_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.download_btn.setEnabled(False)
         self.download_btn.setStyleSheet("background-color: rgb(255, 0, 0);\n"
 "font: 8pt \"Goudy Stout\";")
         self.download_btn.setObjectName("download_btn")

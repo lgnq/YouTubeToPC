@@ -75,6 +75,9 @@
     </item>
     <item row="1" column="1">
      <widget class="QPushButton" name="download_btn">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 0, 0);
 font: 8pt &quot;Goudy Stout&quot;;</string>
