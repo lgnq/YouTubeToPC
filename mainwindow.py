@@ -41,10 +41,17 @@ class Ui_MainWindow(object):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.gridLayout.addWidget(self.comboBox, 2, 1, 1, 1)
-        self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 2)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_2.addItem(spacerItem, 1, 0, 1, 1)
+        self.download_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.download_btn.setStyleSheet("background-color: rgb(255, 0, 0);\n"
+"font: 8pt \"Goudy Stout\";")
+        self.download_btn.setObjectName("download_btn")
+        self.gridLayout_2.addWidget(self.download_btn, 1, 1, 1, 1)
         self.console = QtWidgets.QTextBrowser(self.centralwidget)
         self.console.setObjectName("console")
-        self.gridLayout_2.addWidget(self.console, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.console, 2, 0, 1, 2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 640, 21))
@@ -56,6 +63,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.url.returnPressed.connect(MainWindow.parse_url)
+        self.download_btn.clicked.connect(MainWindow.download)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -66,3 +74,4 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "Resolution:"))
         self.comboBox.setItemText(0, _translate("MainWindow", "Highest Resolution"))
         self.comboBox.setItemText(1, _translate("MainWindow", "Best Available"))
+        self.download_btn.setText(_translate("MainWindow", "DOWNLOAD"))
