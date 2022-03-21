@@ -33,6 +33,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.console.append(f'Parsing YouTube URL is finished')
 
+        self.download_btn.setEnabled(True)
+
     def download(self):
         self.yt.streams.get_highest_resolution()
 
