@@ -14,13 +14,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
 
-    def parse_url(self):
+    def parse_url(self):        
+        self.console.append(f'Start to parse YouTube URL {self.url.text()}')
+
         self.yt = YouTube(self.url.text())
         self.title.setText(self.yt.title)
 
-        self.console.append(f'Title: {self.yt.title}')
-        self.console.append(f'Author: {self.yt.author}')
-        self.console.append(f'Date: {self.yt.publish_date}')
+        self.author.setText(self.yt.author)
+        self.date.setText(str(self.yt.publish_date))
+        self.length.setText(str(self.yt.length))
+        self.views.setText(str(self.yt.views))
+
+        self.console.append(f'Parsing YouTube URL is finished')
 
     def download(self):
         self.yt.streams.get_highest_resolution()
