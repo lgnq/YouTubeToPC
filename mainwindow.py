@@ -117,6 +117,7 @@ class Ui_MainWindow(object):
         icon.addPixmap(QtGui.QPixmap("image/download.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.download_btn.setIcon(icon)
         self.download_btn.setIconSize(QtCore.QSize(127, 31))
+        self.download_btn.setFlat(True)
         self.download_btn.setObjectName("download_btn")
         self.horizontalLayout_2.addWidget(self.download_btn)
         self.gridLayout_3.addLayout(self.horizontalLayout_2, 2, 0, 1, 1)
