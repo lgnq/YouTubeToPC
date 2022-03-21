@@ -31,12 +31,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.length.setText(str(self.yt.length))
         self.views.setText(str(self.yt.views))
 
+        for i in self.yt.streams:
+            self.comboBox.addItem(f'{i}')
+
         self.console.append(f'Parsing YouTube URL is finished')
 
         self.download_btn.setEnabled(True)
 
     def download(self):
-        self.yt.streams.get_highest_resolution()
+        if self.comboBox.currentText() == 'Highest Resolution':
+            self.yt.streams.get_highest_resolution().download()
+        elif self.comboBox.currentText() == 'Best Available':
+            self.yt.streams.first().download()
+        else:
+            print(self.yt.streams.all()[self.comboBox.currentIndex()-2])
+            self.yt.streams.all()[self.comboBox.currentIndex()-2].download()
 
 if __name__ == '__main__':
     #每一pyqt5应用程序必须创建一个应用程序对象。sys.argv参数是一个列表，从命令行输入参数。
