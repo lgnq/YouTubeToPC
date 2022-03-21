@@ -5,6 +5,7 @@ import sys
 
 from pytube import YouTube
  
+from PyQt5 import QtGui 
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from mainwindow import Ui_MainWindow
 
@@ -41,6 +42,8 @@ if __name__ == '__main__':
     
     win = MainWindow()
     
+    win.setWindowIcon(QtGui.QIcon('youtube_icon.png'))
+
     #显示在屏幕上
     win.show()
     
