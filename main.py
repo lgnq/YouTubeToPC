@@ -14,7 +14,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
 
-    def parse_url(self):        
+    def parse_url(self):
+        if not self.url.text().startswith('https://www.youtube.com/'):
+            self.console.append(f'the input URL {self.url.text()} is not a valid YouTube URL, please input another URL again.')
+            self.url.clear()
+            return 
+
         self.console.append(f'Start to parse YouTube URL {self.url.text()}')
 
         self.yt = YouTube(self.url.text())
