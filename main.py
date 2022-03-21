@@ -42,7 +42,7 @@ if __name__ == '__main__':
     
     win = MainWindow()
     
-    win.setWindowIcon(QtGui.QIcon('youtube_icon.png'))
+    win.setWindowIcon(QtGui.QIcon('image\youtube_icon.png'))
 
     #显示在屏幕上
     win.show()
