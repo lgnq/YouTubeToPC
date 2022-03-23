@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
  
 import sys
+import urllib
 
 from pytube import YouTube
  
 from PyQt5 import QtGui 
 from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtGui import QPixmap, QMovie, QImage
+
 from mainwindow import Ui_MainWindow
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -25,6 +28,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.yt = YouTube(self.url.text())
         self.title.setText(self.yt.title)
+        
+        ytthumbnail = urllib.request.urlopen(self.yt.thumbnail_url).read()
+
+        image = QImage()
+        image.loadFromData(ytthumbnail)
+
+        self.thumbnail.setPixmap(QPixmap(image))
 
         self.author.setText(self.yt.author)
         self.date.setText(str(self.yt.publish_date))
