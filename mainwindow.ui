@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>623</width>
-    <height>532</height>
+    <height>603</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>YouTubeToPC</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_3">
+   <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -35,6 +35,43 @@
        <string>Info</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="1">
+        <widget class="QLabel" name="thumbnail">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>1</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>281</width>
+           <height>171</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>281</width>
+           <height>171</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap>image/tumbnail.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
@@ -114,49 +151,12 @@
          </item>
         </layout>
        </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="thumbnail">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>1</horstretch>
-           <verstretch>1</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>281</width>
-           <height>171</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>281</width>
-           <height>171</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="pixmap">
-          <pixmap>image/tumbnail.png</pixmap>
-         </property>
-         <property name="scaledContents">
-          <bool>true</bool>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
     <item row="2" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -175,21 +175,21 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QComboBox" name="comboBox">
-        <item>
-         <property name="text">
-          <string>Highest Resolution</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Best Available</string>
-         </property>
-        </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Caption:</string>
+        </property>
        </widget>
       </item>
-      <item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
        <widget class="QPushButton" name="download_btn">
         <property name="enabled">
          <bool>false</bool>
@@ -220,6 +220,23 @@
          <bool>true</bool>
         </property>
        </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QComboBox" name="comboBox">
+        <item>
+         <property name="text">
+          <string>Highest Resolution</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Best Available</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QComboBox" name="Captions"/>
       </item>
      </layout>
     </item>
