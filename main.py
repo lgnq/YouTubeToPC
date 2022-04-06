@@ -4,14 +4,20 @@
 import sys
 import time
 import urllib
+from matplotlib.pyplot import yticks
 
 from pytube import YouTube, StreamQuery
+import pytube.request
  
 from PyQt5 import QtGui, QtCore 
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QPixmap, QMovie, QImage
 
 from mainwindow import Ui_MainWindow
+
+# Change the value here to something smaller to decrease chunk sizes,
+#  thus increasing the number of times that the progress callback occurs
+pytube.request.default_range_size = 4896  # 9MB chunk size
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
@@ -21,14 +27,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.progressBar.setValue(0)
 
-    # on_progress_callback takes 4 parameters.
-    def progress_Check(self, stream = None, chunk = None, file_handle = None, remaining = None):
-        #Gets the percentage of the file that has been downloaded.
-        # percent = (100*(self.file_size-remaining))/self.file_size
-        # print("{:00.0f}% downloaded".format(percent))        
-        print(remaining)
-
-    def update_info(self, title, author, date, length, views, image, streams):
+    def update_info(self, title, author, date, length, views, image, streams, yt):
         self.title.setText(title)
 
         self.thumbnail.setPixmap(QPixmap(image))
@@ -38,6 +37,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.length.setText(str(length))
         self.views.setText(str(views))
         self.streams = streams
+        self.yt = yt
 
         for i in self.streams:
             self.resolutions.addItem(f'{i}')
@@ -45,7 +45,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.append(f'Parsing YouTube URL is finished')        
         self.download_btn.setEnabled(True)
 
-        self.thread.stop()
+        self.parse_thread.stop()
 
     def parse_url(self):
         if not self.url.text().startswith('https://www.youtube.com/'):
@@ -67,7 +67,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # else:
         #     self.yt.streams[self.resolutions.currentIndex()-2].download()
 
-        self.download_thread = DownloadThreadClass(parent=None, index=self.resolutions.currentIndex(), streams=self.streams)
+        self.download_thread = DownloadThreadClass(parent=None, index=self.resolutions.currentIndex(), streams=self.streams, yt=self.yt)
         self.download_thread.start()
         self.download_thread.download_signal.connect(self.download_complete)
 
@@ -75,7 +75,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.append("Download completes!")
 
 class ParseThreadClass(QtCore.QThread):
-    parse_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery)
+    parse_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery, YouTube)
 
     def __init__(self, parent=None, url=None):
         super(ParseThreadClass, self).__init__(parent)
@@ -100,7 +100,7 @@ class ParseThreadClass(QtCore.QThread):
 
         streams = yt.streams
 
-        self.parse_signal.emit(title, author, date, length, views, image, streams) 
+        self.parse_signal.emit(title, author, date, length, views, image, streams, yt) 
     
     def stop(self):
         self.is_running = False
@@ -110,11 +110,15 @@ class ParseThreadClass(QtCore.QThread):
 class DownloadThreadClass(QtCore.QThread):
     download_signal = QtCore.pyqtSignal()
 
-    def __init__(self, parent=None, index=None, streams=None):
+    def __init__(self, parent=None, index=None, streams=None, yt=None):
         super(DownloadThreadClass, self).__init__(parent)
         self.is_running = True
         self.index = index
         self.streams = streams
+        self.yt = yt
+
+        self.yt.register_on_progress_callback(self.progress_Check)
+        self.yt.register_on_complete_callback(self.complete)
 
     def run(self):
         print('Starting download thread...')
@@ -126,6 +130,7 @@ class DownloadThreadClass(QtCore.QThread):
         else:
             self.streams[self.index-2].download()
 
+
         # while True:
         #     self.download_signal.emit() 
         #     time.sleep(1)
@@ -134,6 +139,17 @@ class DownloadThreadClass(QtCore.QThread):
         self.is_running = False
         print('Stopping download thread...')
         self.terminate()
+
+    # on_progress_callback takes 4 parameters.
+    def progress_Check(self, stream = None, chunk = None, file_handle = None, remaining = None):
+        #Gets the percentage of the file that has been downloaded.
+        # percent = (100*(self.file_size-remaining))/self.file_size
+        # print("{:00.0f}% downloaded".format(percent))        
+        print(remaining)        
+
+    def complete(self):
+        self.download_signal.emit() 
+
 
 if __name__ == '__main__':
     #每一pyqt5应用程序必须创建一个应用程序对象。sys.argv参数是一个列表，从命令行输入参数。
