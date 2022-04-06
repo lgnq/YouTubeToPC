@@ -69,11 +69,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.download_thread = DownloadThreadClass(parent=None, index=self.resolutions.currentIndex(), streams=self.streams, yt=self.yt)
         self.download_thread.start()
-        self.download_thread.download_signal.connect(self.download_complete)
+        self.download_thread.download_signal.connect(self.download_progress)
+        self.download_thread.complete_signal.connect(self.download_complete)
 
     def download_complete(self):
         self.console.append("Download completes!")
         self.download_thread.stop()
+
+    def download_progress(self, percentage):
+        self.progressBar.setValue(int(percentage*100))
 
 class ParseThreadClass(QtCore.QThread):
     parse_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery, YouTube)
@@ -109,7 +113,8 @@ class ParseThreadClass(QtCore.QThread):
         self.terminate()        
 
 class DownloadThreadClass(QtCore.QThread):
-    download_signal = QtCore.pyqtSignal()
+    download_signal = QtCore.pyqtSignal(float)
+    complete_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, index=None, streams=None, yt=None):
         super(DownloadThreadClass, self).__init__(parent)
@@ -125,10 +130,13 @@ class DownloadThreadClass(QtCore.QThread):
         print('Starting download thread...')
 
         if self.index == 0:
+            self.filesize = self.streams.get_highest_resolution().filesize
             self.streams.get_highest_resolution().download()
         elif self.index == 1:
+            self.filesize = self.streams.first().filesize
             self.streams.first().download()
         else:
+            self.filesize = self.streams[self.index-2].filesize
             self.streams[self.index-2].download()
 
 
@@ -146,10 +154,11 @@ class DownloadThreadClass(QtCore.QThread):
         #Gets the percentage of the file that has been downloaded.
         # percent = (100*(self.file_size-remaining))/self.file_size
         # print("{:00.0f}% downloaded".format(percent))        
-        print(bytes_remaining)        
+        print(bytes_remaining)      
+        self.download_signal.emit((self.filesize-bytes_remaining)/self.filesize) 
 
     def complete(self, stream = None, file_path = None):
-        self.download_signal.emit() 
+        self.complete_signal.emit() 
 
 
 if __name__ == '__main__':
