@@ -35,8 +35,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.date.setText(date)
         self.length.setText(str(length))
         self.views.setText(str(views))
+        self.streams = streams
 
-        for i in streams:
+        for i in self.streams:
             self.resolutions.addItem(f'{i}')
 
         self.console.append(f'Parsing YouTube URL is finished')        
@@ -57,13 +58,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.parse_thread.parse_signal.connect(self.update_info)
 
     def download(self):
-        if self.resolutions.currentText() == 'Highest Resolution':
-            self.yt.streams.get_highest_resolution().download()
-        elif self.resolutions.currentText() == 'Best Available':
-            self.yt.streams.first().download()
-        else:
-            self.yt.streams[self.resolutions.currentIndex()-2].download()
+        # if self.resolutions.currentText() == 'Highest Resolution':
+        #     self.yt.streams.get_highest_resolution().download()
+        # elif self.resolutions.currentText() == 'Best Available':
+        #     self.yt.streams.first().download()
+        # else:
+        #     self.yt.streams[self.resolutions.currentIndex()-2].download()
 
+        self.download_thread = DownloadThreadClass(parent=None, index=self.resolutions.currentIndex(), streams=self.streams)
+        self.download_thread.start()
+        self.download_thread.download_signal.connect(self.download_complete)
+
+    def download_complete(self):
         self.console.append("Download completes!")
 
 class ParseThreadClass(QtCore.QThread):
@@ -100,20 +106,28 @@ class ParseThreadClass(QtCore.QThread):
         self.terminate()        
 
 class DownloadThreadClass(QtCore.QThread):
-    download_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery)
+    download_signal = QtCore.pyqtSignal()
 
-    def __init__(self, parent=None, url=None):
+    def __init__(self, parent=None, index=None, streams=None):
         super(DownloadThreadClass, self).__init__(parent)
         self.is_running = True
-        self.url = url
+        self.index = index
+        self.streams = streams
 
     def run(self):
         print('Starting thread...')
 
-        yt = YouTube(self.url)
+        if self.index == 0:
+            self.streams.get_highest_resolution().download()
+        elif self.index == 1:
+            self.streams.first().download()
+        else:
+            self.streams[self.index-2].download()
 
-        self.download_signal.emit() 
-    
+        # while True:
+        #     self.download_signal.emit() 
+        #     time.sleep(1)
+
     def stop(self):
         self.is_running = False
         print('Stopping thread...')
