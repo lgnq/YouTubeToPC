@@ -83,7 +83,7 @@ class ParseThreadClass(QtCore.QThread):
         self.url = url
 
     def run(self):
-        print('Starting thread...')
+        print('Starting parse thread...')
 
         yt = YouTube(self.url)
 
@@ -104,7 +104,7 @@ class ParseThreadClass(QtCore.QThread):
     
     def stop(self):
         self.is_running = False
-        print('Stopping thread...')
+        print('Stopping parse thread...')
         self.terminate()        
 
 class DownloadThreadClass(QtCore.QThread):
@@ -117,7 +117,7 @@ class DownloadThreadClass(QtCore.QThread):
         self.streams = streams
 
     def run(self):
-        print('Starting thread...')
+        print('Starting download thread...')
 
         if self.index == 0:
             self.streams.get_highest_resolution().download()
@@ -132,7 +132,7 @@ class DownloadThreadClass(QtCore.QThread):
 
     def stop(self):
         self.is_running = False
-        print('Stopping thread...')
+        print('Stopping download thread...')
         self.terminate()
 
 if __name__ == '__main__':
