@@ -17,7 +17,7 @@ from mainwindow import Ui_MainWindow
 
 # Change the value here to something smaller to decrease chunk sizes,
 #  thus increasing the number of times that the progress callback occurs
-pytube.request.default_range_size = 4896  # 9MB chunk size
+pytube.request.default_range_size = 1*1024*1024  # 9MB chunk size
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
@@ -73,6 +73,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def download_complete(self):
         self.console.append("Download completes!")
+        self.download_thread.stop()
 
 class ParseThreadClass(QtCore.QThread):
     parse_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery, YouTube)
@@ -141,13 +142,13 @@ class DownloadThreadClass(QtCore.QThread):
         self.terminate()
 
     # on_progress_callback takes 4 parameters.
-    def progress_Check(self, stream = None, chunk = None, file_handle = None, remaining = None):
+    def progress_Check(self, stream = None, chunk = None, bytes_remaining = None):
         #Gets the percentage of the file that has been downloaded.
         # percent = (100*(self.file_size-remaining))/self.file_size
         # print("{:00.0f}% downloaded".format(percent))        
-        print(remaining)        
+        print(bytes_remaining)        
 
-    def complete(self):
+    def complete(self, stream = None, file_path = None):
         self.download_signal.emit() 
 
 
