@@ -60,13 +60,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.parse_thread.parse_signal.connect(self.update_info)
 
     def download(self):
-        # if self.resolutions.currentText() == 'Highest Resolution':
-        #     self.yt.streams.get_highest_resolution().download()
-        # elif self.resolutions.currentText() == 'Best Available':
-        #     self.yt.streams.first().download()
-        # else:
-        #     self.yt.streams[self.resolutions.currentIndex()-2].download()
-
         self.download_thread = DownloadThreadClass(parent=None, index=self.resolutions.currentIndex(), streams=self.streams, yt=self.yt)
         self.download_thread.start()
         self.download_thread.download_signal.connect(self.download_progress)
