@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
  
 import sys
+import time
 import urllib
 
 from pytube import YouTube
  
-from PyQt5 import QtGui 
+from PyQt5 import QtGui, QtCore 
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QPixmap, QMovie, QImage
 
@@ -18,6 +19,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
 
+    # on_progress_callback takes 4 parameters.
+    def progress_Check(self, stream = None, chunk = None, file_handle = None, remaining = None):
+        #Gets the percentage of the file that has been downloaded.
+        # percent = (100*(self.file_size-remaining))/self.file_size
+        # print("{:00.0f}% downloaded".format(percent))        
+        print(remaining)
+
+    def update_info(self, title, author, date, length, views, image):
+        self.title.setText(title)
+
+        self.thumbnail.setPixmap(QPixmap(image))
+
+        self.author.setText(author)
+        self.date.setText(date)
+        self.length.setText(str(length))
+        self.views.setText(str(views))
+
+        # for i in yt.streams:
+            # self.resolutions.addItem(f'{i}')
+
+        self.console.append(f'Parsing YouTube URL is finished')        
+        self.download_btn.setEnabled(True)
+
+        self.thread.stop()
+
     def parse_url(self):
         if not self.url.text().startswith('https://www.youtube.com/'):
             self.console.append(f'the input URL {self.url.text()} is not a valid YouTube URL, please input another URL again.')
@@ -26,37 +52,57 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.console.append(f'Start to parse YouTube URL {self.url.text()}')
 
-        self.yt = YouTube(self.url.text())
-        self.title.setText(self.yt.title)
-        
-        ytthumbnail = urllib.request.urlopen(self.yt.thumbnail_url).read()
+        self.thread = ThreadClass(parent=None, url=self.url.text())
+        self.thread.start()
+        self.thread.any_signal.connect(self.update_info)
+
+    def download(self):
+        if self.resolutions.currentText() == 'Highest Resolution':
+            self.yt.streams.get_highest_resolution().download()
+        elif self.resolutions.currentText() == 'Best Available':
+            self.yt.streams.first().download()
+        else:
+            self.yt.streams[self.resolutions.currentIndex()-2].download()
+
+        self.console.append("Download completes!")
+
+class ThreadClass(QtCore.QThread):
+    any_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage)
+
+    def __init__(self, parent=None, url=None):
+        super(ThreadClass, self).__init__(parent)
+        self.is_running = True
+        self.url = url
+
+    def run(self):
+        print('Starting thread...')
+
+        yt = YouTube(self.url)
+
+        title   = yt.title
+        author  = yt.author
+        date    = str(yt.publish_date)
+        length  = yt.length
+        views   = yt.views
+
+        ytthumbnail = urllib.request.urlopen(yt.thumbnail_url).read()
 
         image = QImage()
         image.loadFromData(ytthumbnail)
 
-        self.thumbnail.setPixmap(QPixmap(image))
+        self.any_signal.emit(title, author, date, length, views, image) 
 
-        self.author.setText(self.yt.author)
-        self.date.setText(str(self.yt.publish_date))
-        self.length.setText(str(self.yt.length))
-        self.views.setText(str(self.yt.views))
-
-        for i in self.yt.streams:
-            self.comboBox.addItem(f'{i}')
-
-        self.console.append(f'Parsing YouTube URL is finished')
-
-        self.download_btn.setEnabled(True)
-
-    def download(self):
-        if self.comboBox.currentText() == 'Highest Resolution':
-            self.yt.streams.get_highest_resolution().download()
-        elif self.comboBox.currentText() == 'Best Available':
-            self.yt.streams.first().download()
-        else:
-            self.yt.streams[self.comboBox.currentIndex()-2].download()
-
-        self.console.append("Download completes!")
+        cnt=0
+        while (True):
+            cnt+=1
+            if cnt==99: cnt=0
+            time.sleep(0.01)
+            # self.any_signal.emit(cnt) 
+    
+    def stop(self):
+        self.is_running = False
+        print('Stopping thread...')
+        self.terminate()        
 
 if __name__ == '__main__':
     #每一pyqt5应用程序必须创建一个应用程序对象。sys.argv参数是一个列表，从命令行输入参数。
