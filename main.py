@@ -19,6 +19,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
 
+        self.progressBar.setValue(0)
+
     # on_progress_callback takes 4 parameters.
     def progress_Check(self, stream = None, chunk = None, file_handle = None, remaining = None):
         #Gets the percentage of the file that has been downloaded.
