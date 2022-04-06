@@ -5,7 +5,7 @@ import sys
 import time
 import urllib
 
-from pytube import YouTube
+from pytube import YouTube, StreamQuery
  
 from PyQt5 import QtGui, QtCore 
 from PyQt5.QtWidgets import QApplication, QMainWindow
@@ -26,7 +26,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # print("{:00.0f}% downloaded".format(percent))        
         print(remaining)
 
-    def update_info(self, title, author, date, length, views, image):
+    def update_info(self, title, author, date, length, views, image, streams):
         self.title.setText(title)
 
         self.thumbnail.setPixmap(QPixmap(image))
@@ -36,8 +36,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.length.setText(str(length))
         self.views.setText(str(views))
 
-        # for i in yt.streams:
-            # self.resolutions.addItem(f'{i}')
+        for i in streams:
+            self.resolutions.addItem(f'{i}')
 
         self.console.append(f'Parsing YouTube URL is finished')        
         self.download_btn.setEnabled(True)
@@ -67,7 +67,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.append("Download completes!")
 
 class ThreadClass(QtCore.QThread):
-    any_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage)
+    any_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery)
 
     def __init__(self, parent=None, url=None):
         super(ThreadClass, self).__init__(parent)
@@ -90,7 +90,9 @@ class ThreadClass(QtCore.QThread):
         image = QImage()
         image.loadFromData(ytthumbnail)
 
-        self.any_signal.emit(title, author, date, length, views, image) 
+        streams = yt.streams
+
+        self.any_signal.emit(title, author, date, length, views, image, streams) 
 
         cnt=0
         while (True):
