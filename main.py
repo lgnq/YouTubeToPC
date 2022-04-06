@@ -52,9 +52,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.console.append(f'Start to parse YouTube URL {self.url.text()}')
 
-        self.thread = ThreadClass(parent=None, url=self.url.text())
-        self.thread.start()
-        self.thread.any_signal.connect(self.update_info)
+        self.parse_thread = ParseThreadClass(parent=None, url=self.url.text())
+        self.parse_thread.start()
+        self.parse_thread.parse_signal.connect(self.update_info)
 
     def download(self):
         if self.resolutions.currentText() == 'Highest Resolution':
@@ -66,11 +66,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.console.append("Download completes!")
 
-class ThreadClass(QtCore.QThread):
-    any_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery)
+class ParseThreadClass(QtCore.QThread):
+    parse_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery)
 
     def __init__(self, parent=None, url=None):
-        super(ThreadClass, self).__init__(parent)
+        super(ParseThreadClass, self).__init__(parent)
         self.is_running = True
         self.url = url
 
@@ -92,19 +92,32 @@ class ThreadClass(QtCore.QThread):
 
         streams = yt.streams
 
-        self.any_signal.emit(title, author, date, length, views, image, streams) 
-
-        cnt=0
-        while (True):
-            cnt+=1
-            if cnt==99: cnt=0
-            time.sleep(0.01)
-            # self.any_signal.emit(cnt) 
+        self.parse_signal.emit(title, author, date, length, views, image, streams) 
     
     def stop(self):
         self.is_running = False
         print('Stopping thread...')
         self.terminate()        
+
+class DownloadThreadClass(QtCore.QThread):
+    download_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery)
+
+    def __init__(self, parent=None, url=None):
+        super(DownloadThreadClass, self).__init__(parent)
+        self.is_running = True
+        self.url = url
+
+    def run(self):
+        print('Starting thread...')
+
+        yt = YouTube(self.url)
+
+        self.download_signal.emit() 
+    
+    def stop(self):
+        self.is_running = False
+        print('Stopping thread...')
+        self.terminate()
 
 if __name__ == '__main__':
     #每一pyqt5应用程序必须创建一个应用程序对象。sys.argv参数是一个列表，从命令行输入参数。
