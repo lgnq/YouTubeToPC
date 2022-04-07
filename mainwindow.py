@@ -151,6 +151,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.url.returnPressed.connect(MainWindow.parse_url)
         self.download_btn.clicked.connect(MainWindow.download)
+        self.resolutions.currentIndexChanged['int'].connect(MainWindow.resolution_select)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
