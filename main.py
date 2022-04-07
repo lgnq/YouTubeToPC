@@ -28,16 +28,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.progressBar.setValue(0)
 
     def update_info(self, title, author, date, length, views, image, streams, yt):
+        self.yt = yt
+
         self.title.setText(title)
-
-        self.thumbnail.setPixmap(QPixmap(image))
-
         self.author.setText(author)
         self.date.setText(date)
         self.length.setText(str(length))
         self.views.setText(str(views))
+        self.thumbnail.setPixmap(QPixmap(image))
+
         self.streams = streams
-        self.yt = yt
 
         for i in self.streams:
             self.resolutions.addItem(f'{i}')
