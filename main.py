@@ -20,6 +20,8 @@ from mainwindow import Ui_MainWindow
 pytube.request.default_range_size = 1*1024*1024  # 9MB chunk size
 
 class MainWindow(QMainWindow, Ui_MainWindow):
+    resolution_signal = QtCore.pyqtSignal(int)
+
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent)
 
@@ -38,14 +40,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.thumbnail.setPixmap(QPixmap(image))
 
         self.streams = streams
-
         for i in self.streams:
             self.resolutions.addItem(f'{i}')
 
         self.console.append(f'Parsing YouTube URL is finished')        
         self.download_btn.setEnabled(True)
 
-        self.parse_thread.stop()
+        # self.parse_thread.stop()
 
     def parse_url(self):
         if not self.url.text().startswith('https://www.youtube.com/'):
@@ -58,6 +59,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.parse_thread = ParseThreadClass(parent=None, url=self.url.text())
         self.parse_thread.start()
         self.parse_thread.parse_signal.connect(self.update_info)
+        self.parse_thread.resolution_signal.connect(self.filesize_update)
+
+        self.resolution_signal.connect(self.parse_thread.resolution_get)
+
+    def resolution_select(self, index):
+        # if index == 0:
+        #     self.filesize = self.streams.get_highest_resolution().filesize
+        #     # self.streams.get_highest_resolution().download()
+        # elif index == 1:
+        #     self.filesize = self.streams.first().filesize
+        #     # self.streams.first().download()
+        # else:
+        #     self.filesize = self.streams[index-2].filesize
+        #     # self.streams[self.index-2].download()        
+
+        self.resolution_signal.emit(index)
+        # self.size.setText(str(self.filesize))
+
+    def filesize_update(self, filesize):
+        self.size.setText(str(filesize))
 
     def download(self):
         self.download_thread = DownloadThreadClass(parent=None, index=self.resolutions.currentIndex(), streams=self.streams, yt=self.yt)
@@ -74,6 +95,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 class ParseThreadClass(QtCore.QThread):
     parse_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery, YouTube)
+    resolution_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None, url=None):
         super(ParseThreadClass, self).__init__(parent)
@@ -96,14 +118,18 @@ class ParseThreadClass(QtCore.QThread):
         image = QImage()
         image.loadFromData(ytthumbnail)
 
-        streams = yt.streams
+        self.streams = yt.streams
 
-        self.parse_signal.emit(title, author, date, length, views, image, streams, yt) 
+        self.parse_signal.emit(title, author, date, length, views, image, self.streams, yt) 
     
     def stop(self):
         self.is_running = False
         print('Stopping parse thread...')
-        self.terminate()        
+        self.terminate()     
+
+    def resolution_get(self, index):
+        filesize = self.streams[index].filesize
+        self.resolution_signal.emit(filesize) 
 
 class DownloadThreadClass(QtCore.QThread):
     download_signal = QtCore.pyqtSignal(float)
