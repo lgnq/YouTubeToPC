@@ -146,11 +146,6 @@ class DownloadThreadClass(QtCore.QThread):
             self.filesize = self.streams[self.index-2].filesize
             self.streams[self.index-2].download()
 
-
-        # while True:
-        #     self.download_signal.emit() 
-        #     time.sleep(1)
-
     def stop(self):
         self.is_running = False
         print('Stopping download thread...')
