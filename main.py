@@ -4,6 +4,7 @@
 import sys
 import time
 import urllib
+from html5lib import serialize
 from matplotlib.pyplot import yticks
 
 from pytube import YouTube, StreamQuery
@@ -20,16 +21,17 @@ from mainwindow import Ui_MainWindow
 pytube.request.default_range_size = 1*1024*1024  # 9MB chunk size
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    resolution_signal = QtCore.pyqtSignal(int)
+    # resolution_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent)
-
         self.setupUi(self)
+
+        self.filesize = []
 
         self.progressBar.setValue(0)
 
-    def update_info(self, title, author, date, length, views, image, streams, yt):
+    def update_info(self, title, author, date, length, views, size, image, streams, yt):
         self.yt = yt
 
         self.title.setText(title)
@@ -38,6 +40,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.length.setText(str(length))
         self.views.setText(str(views))
         self.thumbnail.setPixmap(QPixmap(image))
+
+        self.filesize = size.copy()
+        self.size.setText(str(self.filesize[0]))
 
         self.streams = streams
         for i in self.streams:
@@ -59,9 +64,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.parse_thread = ParseThreadClass(parent=None, url=self.url.text())
         self.parse_thread.start()
         self.parse_thread.parse_signal.connect(self.update_info)
-        self.parse_thread.resolution_signal.connect(self.filesize_update)
 
-        self.resolution_signal.connect(self.parse_thread.resolution_get)
+        # self.parse_thread.resolution_signal.connect(self.filesize_update)
+
+        # self.resolution_signal.connect(self.parse_thread.resolution_get)
 
     def resolution_select(self, index):
         # if index == 0:
@@ -74,11 +80,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #     self.filesize = self.streams[index-2].filesize
         #     # self.streams[self.index-2].download()        
 
-        self.resolution_signal.emit(index)
-        # self.size.setText(str(self.filesize))
+        # self.resolution_signal.emit(index)
 
-    def filesize_update(self, filesize):
-        self.size.setText(str(filesize))
+        self.size.setText(str(self.filesize[index]))
 
     def download(self):
         self.download_thread = DownloadThreadClass(parent=None, index=self.resolutions.currentIndex(), streams=self.streams, yt=self.yt)
@@ -94,13 +98,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.progressBar.setValue(int(percentage*100))
 
 class ParseThreadClass(QtCore.QThread):
-    parse_signal = QtCore.pyqtSignal(str, str, str, float, int, QImage, StreamQuery, YouTube)
+    parse_signal = QtCore.pyqtSignal(str, str, str, float, int, list, QImage, StreamQuery, YouTube)
     resolution_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None, url=None):
         super(ParseThreadClass, self).__init__(parent)
         self.is_running = True
         self.url = url
+        self.filesize = []
 
     def run(self):
         print('Starting parse thread...')
@@ -120,16 +125,23 @@ class ParseThreadClass(QtCore.QThread):
 
         self.streams = yt.streams
 
-        self.parse_signal.emit(title, author, date, length, views, image, self.streams, yt) 
+        self.filesize.append(self.streams.get_highest_resolution().filesize)
+        self.filesize.append(self.streams.first().filesize)
+
+        for i in self.streams:
+            print(i.filesize)
+            self.filesize.append(i.filesize)
+
+        self.parse_signal.emit(title, author, date, length, views, self.filesize, image, self.streams, yt) 
     
     def stop(self):
         self.is_running = False
         print('Stopping parse thread...')
         self.terminate()     
 
-    def resolution_get(self, index):
-        filesize = self.streams[index].filesize
-        self.resolution_signal.emit(filesize) 
+    # def resolution_get(self, index):
+    #     filesize = self.streams[index].filesize
+    #     self.resolution_signal.emit(filesize) 
 
 class DownloadThreadClass(QtCore.QThread):
     download_signal = QtCore.pyqtSignal(float)
