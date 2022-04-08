@@ -4,7 +4,6 @@
 import sys
 import time
 import urllib
-from html5lib import serialize
 from matplotlib.pyplot import yticks
 
 from pytube import YouTube, StreamQuery
@@ -21,8 +20,6 @@ from mainwindow import Ui_MainWindow
 pytube.request.default_range_size = 1*1024*1024  # 9MB chunk size
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    # resolution_signal = QtCore.pyqtSignal(int)
-
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
@@ -64,10 +61,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.parse_thread = ParseThreadClass(parent=None, url=self.url.text())
         self.parse_thread.start()
         self.parse_thread.parse_signal.connect(self.update_info)
-
-        # self.parse_thread.resolution_signal.connect(self.filesize_update)
-
-        # self.resolution_signal.connect(self.parse_thread.resolution_get)
 
     def resolution_select(self, index):
         # if index == 0:
@@ -138,10 +131,6 @@ class ParseThreadClass(QtCore.QThread):
         self.is_running = False
         print('Stopping parse thread...')
         self.terminate()     
-
-    # def resolution_get(self, index):
-    #     filesize = self.streams[index].filesize
-    #     self.resolution_signal.emit(filesize) 
 
 class DownloadThreadClass(QtCore.QThread):
     download_signal = QtCore.pyqtSignal(float)
