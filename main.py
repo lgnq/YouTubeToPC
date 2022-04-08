@@ -51,7 +51,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.append(f'Parsing YouTube URL is finished')        
         self.download_btn.setEnabled(True)
 
-        # self.parse_thread.stop()
+        self.parse_thread.stop()
 
     def parse_url(self):
         if not self.url.text().startswith('https://www.youtube.com/'):
