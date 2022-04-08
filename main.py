@@ -63,18 +63,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.parse_thread.parse_signal.connect(self.update_info)
 
     def resolution_select(self, index):
-        # if index == 0:
-        #     self.filesize = self.streams.get_highest_resolution().filesize
-        #     # self.streams.get_highest_resolution().download()
-        # elif index == 1:
-        #     self.filesize = self.streams.first().filesize
-        #     # self.streams.first().download()
-        # else:
-        #     self.filesize = self.streams[index-2].filesize
-        #     # self.streams[self.index-2].download()        
-
-        # self.resolution_signal.emit(index)
-
         self.size.setText(str(self.filesize[index]))
 
     def download(self):
@@ -92,7 +80,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 class ParseThreadClass(QtCore.QThread):
     parse_signal = QtCore.pyqtSignal(str, str, str, float, int, list, QImage, StreamQuery, YouTube)
-    resolution_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None, url=None):
         super(ParseThreadClass, self).__init__(parent)
